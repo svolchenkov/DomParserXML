@@ -9,9 +9,9 @@
         <view>
             <a></a>
             <h:form enctype="multipart/form-data">  
-                <h:inputFile value="#{domParserXML.fileXml}" />
+                <h:inputFile value="#{indexBean.fileXml}" />
                 <p></p>
-                <h:commandButton value="Upload file" action="#{domParserXML.upload()}"  />
+                <h:commandButton value="Upload file" action="#{indexBean.uploadFile()}"  />
             </h:form>
             <p></p>
             <a></a>
@@ -19,12 +19,16 @@
             <h:form>
                 <h:commandButton value="rootElement" action="#{domParserXML.myStart()}" />
                 <p></p> 
-                <h4 style="color: darkslateblue">
-                    <h:outputLabel value="Root element: #{domParserXML.rootElement}" />
-                </h4>
+
+                <h:outputLabel value="Root element: #{domParserXML.rootElement}" />
+
                 <p></p>
             </h:form>
-            
+            <h:form>
+                <h4 style="color: darkslateblue">
+                    <h:commandButton value="test" action="#{indexBean.testElements()}" />
+                </h4>
+            </h:form>
         </view>
     </h:body>
 </html>

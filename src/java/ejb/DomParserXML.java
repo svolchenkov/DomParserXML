@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package domParser;
+package ejb;
 
 import com.oracle.jrockit.jfr.ContentType;
 import java.io.BufferedReader;
@@ -21,8 +21,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.Part;
@@ -37,8 +41,8 @@ import org.w3c.dom.Element;
  *
  * @author Sergey
  */
-@ManagedBean
-@RequestScoped
+@Stateless
+@LocalBean
 public class DomParserXML {
 
     private String rootElement;
@@ -49,17 +53,28 @@ public class DomParserXML {
     public DomParserXML() {
     }
 
-    public void myStart() {
-
+    public Map<String, String> elements() {
+        Map<String, String> map = new LinkedHashMap<>();
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(new File(path));
             document.getDocumentElement().normalize();
-            rootElement = document.getDocumentElement().getNodeName();
-            System.out.println("" + rootElement);
+            map.put("rootElement", document.getDocumentElement().getNodeName());
+//            System.out.println("* " + document.getElementsByTagName("student").item(0).getTextContent());
+//            System.out.println("*" + document.getElementsByTagName("firstname").item(0).getTextContent());
+            NodeList nList = document.getElementsByTagName("student");
+            for ( int index = 0; index < nList.getLength(); index++ ) {
+                Node node = nList.item(index);
+            System.out.println("node: " + node.getNodeName());
+            }
+            
+            System.out.println("*****XML Elements*****");
+            for ( String s : map.keySet() ) {
+                System.out.println("key: " + s + "value: " + map.get(s));
+            }
         } catch (Exception ex) {
-            System.out.println("");
+            System.out.println("" + ex.getMessage());
         } finally {
             try {
                 Files.delete(Paths.get(path));
@@ -67,9 +82,11 @@ public class DomParserXML {
                 Logger.getLogger(DomParserXML.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        return map;
     }
 
-    public void upload() {
+    public void upload(Part fileXml) {
+        this.fileXml = fileXml;
         try (InputStream is = fileXml.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
@@ -77,7 +94,6 @@ public class DomParserXML {
             String line;
             while ((line = br.readLine()) != null) {
                 outputStream.write(line);
-                System.out.println("" + line);
             }
             setFile(new File(path));
         } catch (IOException ex) {
